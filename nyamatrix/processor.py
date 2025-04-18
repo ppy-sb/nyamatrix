@@ -1,5 +1,6 @@
 import json
 import logging
+import math
 from tqdm import tqdm
 from pathlib import Path
 from redis import Redis
@@ -62,7 +63,10 @@ def _process_group(map_id: int, mode: int, scores: list[tuple], map_path: str, t
                 if result_attr := _process_score(attr_or_map, score[1:]):
                     if isinstance(attr_or_map, Beatmap):
                         attr_buffer[score[1]] = result_attr
-                    results_list[i] = (score[0], result_attr.pp)
+                    pp_value = result_attr.pp
+                    if math.isnan(pp_value) or math.isinf(pp_value) or pp_value > 9999:
+                        pp_value = 0.0
+                    results_list[i] = (score[0], pp_value)
 
             with engine.connect() as conn:
                 conn.execute(text(STATEMENT_UPDATE_SCORES), [{"pp": result[1], "id": result[0]} for result in results_list])
