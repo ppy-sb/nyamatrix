@@ -34,7 +34,7 @@ def recalc(
     logging.debug(f"Using Redis URI: {redis_uri}")
 
     if statements.test_database_connection(mysql_uri):
-        engine = create_engine(mysql_uri)
+        engine = create_engine(mysql_uri, isolation_level="AUTOCOMMIT")
         redis_engine = Redis.from_url(redis_uri, decode_responses=True)
         processor.process_scores(engine, gamemodes, beatmap_path)
         processor.process_score_status(engine, gamemodes)

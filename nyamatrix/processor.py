@@ -12,7 +12,7 @@ from nyamatrix import statements
 from nyamatrix.statements import SQL
 
 STATEMENT_GROUP_SCORES = SQL("group_scores")
-STATEMENT_COUNT_SCORES = "SELECT MAX(id) FROM scores WHERE status > 0 AND mode IN :modes"
+STATEMENT_COUNT_SCORES = "SELECT COUNT(*) FROM scores WHERE status > 0 AND mode IN :modes"
 STATEMENT_UPDATE_SCORES = "UPDATE scores SET pp = :pp WHERE id = :id"
 STATEMENT_UPDATE_SCORE_STATUS = SQL("update_score_status")
 STATEMENT_UPDATE_USER_STATISTICS = SQL("update_user_statistics")
@@ -70,13 +70,14 @@ def _process_group(map_id: int, mode: int, scores: list[tuple], map_path: str, t
 
             with engine.connect() as conn:
                 conn.execute(text(STATEMENT_UPDATE_SCORES), [{"pp": result[1], "id": result[0]} for result in results_list])
+                conn.commit()
         tqdm.update(scores_num)
     except Exception as e:
         logging.error(f"Error processing group for map ID {map_id} and mode {mode}: {e}")
 
 
 def process_scores(engine: Engine, gamemodes: list[int], map_path: str) -> None:
-    logging.info("Processing scores (python procedure, progressbar is available).")
+    logging.info("Processing scores.")
     progress_bar = tqdm(total=statements.fetch_count(engine, STATEMENT_COUNT_SCORES, {"modes": tuple(gamemodes)}))
     pool = ThreadPoolExecutor(max_workers=4)
     with engine.connect() as conn:
@@ -90,19 +91,21 @@ def process_scores(engine: Engine, gamemodes: list[int], map_path: str) -> None:
 
 
 def process_score_status(engine: Engine, gamemodes: list[int]) -> None:
-    logging.info("Processing full table scores status (large mysql procedure, waiting for mysql).")
+    logging.info("Processing full table scores status (waiting for mysql).")
     with engine.connect() as conn:
         conn.execute(text(STATEMENT_UPDATE_SCORE_STATUS), {"modes": tuple(gamemodes)})
+        conn.commit()
     logging.info("Finished processing status.")
 
 
 def process_user_statistics(engine: Engine, redis: Redis, gamemodes: list[int]) -> None:
-    logging.info("Processing full table user statistics (large mysql procedure, waiting for mysql).")
+    logging.info("Processing full table user statistics (waiting for mysql).")
     with engine.connect() as conn:
         conn.execute(text(STATEMENT_UPDATE_USER_STATISTICS), {"modes": tuple(gamemodes)})
+        conn.commit()
     logging.info("Finished processing user statistics.")
 
-    logging.info("Writing leaderboard to redis (python procedure, progressbar is available).")
+    logging.info("Writing leaderboard to redis.")
     progress_bar = tqdm(total=statements.fetch_count(engine, STATEMENT_COUNT_USER_STATISTICS, {"modes": tuple(gamemodes)}))
     with engine.connect() as conn:
         connection = conn.execution_options(stream_results=True, max_row_buffer=1000)

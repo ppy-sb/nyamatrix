@@ -36,5 +36,3 @@ SET
         WHEN status = 2 THEN 1
         ELSE status
     END
-WHERE
-    mode IN :modes
