@@ -11,7 +11,7 @@ app = typer.Typer()
 
 @app.command()
 def recalc(
-    mysql_uri: str = typer.Option(..., "--mysql-uri", "-d", help="Database URI to connect to"),
+    mysql_uri: str = typer.Option(..., "--mysql-uri", "-m", help="Database URI to connect to"),
     redis_uri: str = typer.Option("redis://localhost:6379", "--redis-uri", "-r", help="Redis URI to connect to"),
     beatmap_path: str = typer.Option(..., "--beatmap-path", "-b", help="Path to the beatmaps directory"),
     gamemodes: list[int] = typer.Option(
