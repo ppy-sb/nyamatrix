@@ -1,6 +1,6 @@
 # nyamatrix
 
-A re-calculator for bancho.py with elegant performance.
+A recalculator for bancho.py with elegant performance.
 
 ## Introduction
 
