@@ -90,14 +90,14 @@ def process_scores(engine: Engine, gamemodes: list[int], map_path: str) -> None:
 
 
 def process_score_status(engine: Engine, gamemodes: list[int]) -> None:
-    logging.info("Processing full table scores status (large mysql procedure, waiting mysql to finish).")
+    logging.info("Processing full table scores status (large mysql procedure, waiting for mysql).")
     with engine.connect() as conn:
         conn.execute(text(STATEMENT_UPDATE_SCORE_STATUS), {"modes": tuple(gamemodes)})
     logging.info("Finished processing status.")
 
 
 def process_user_statistics(engine: Engine, redis: Redis, gamemodes: list[int]) -> None:
-    logging.info("Processing full table user statistics (large mysql procedure, waiting mysql to finish).")
+    logging.info("Processing full table user statistics (large mysql procedure, waiting for mysql).")
     with engine.connect() as conn:
         conn.execute(text(STATEMENT_UPDATE_USER_STATISTICS), {"modes": tuple(gamemodes)})
     logging.info("Finished processing user statistics.")

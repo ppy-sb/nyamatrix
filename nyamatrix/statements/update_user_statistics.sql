@@ -111,6 +111,3 @@ SET
         ),
         0
     );
-
-WHERE
-    s.mode IN :modes
