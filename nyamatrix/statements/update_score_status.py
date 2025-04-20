@@ -23,7 +23,8 @@ def query(
         FROM
             scores
         WHERE
-            score > 0
+            grade != 'F' -- make sure early exited scores are not in considering
+            -- AND max_pp > 0 -- no perf gain
         GROUP BY
             userid,
             mode,
@@ -50,6 +51,7 @@ def query(
             AND s2.map_md5 = MAX.map_md5
         WHERE
             s2.pp > 0
+            AND s2.grade != 'F' -- edge case: same pp, failed scores, higher score
     ),
     MAX_PPS AS (
         SELECT
@@ -61,7 +63,9 @@ def query(
     )
     UPDATE
         scores s
-    LEFT JOIN maps m ON s.map_md5 = m.md5
+    """
+        + ("LEFT JOIN maps m ON s.map_md5 = m.md5" if map_statuses or map_modes else "")
+        + """
     SET
         s.status = CASE
     """
@@ -118,9 +122,9 @@ def query(
 if __name__ == "__main__":
     q, p = query(
         score_modes=[0, 1],
-        map_modes=[0, 1],
+        # map_modes=[0, 1],
         score_statuses=[0, 1],
-        map_statuses=[0, 1],
+        # map_statuses=[0, 1],
         user_ids=[123456789],
         time_after=0,
         time_before=1000000000,
