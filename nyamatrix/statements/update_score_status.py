@@ -16,7 +16,8 @@ def query(
         SELECT
             userid,
             mode,
-            max(pp) AS max_pp
+            max(pp) AS max_pp,
+            map_md5
         FROM
             scores
         WHERE
@@ -44,6 +45,7 @@ def query(
             s2.userid = MAX.userid
             AND s2.mode = MAX.mode
             AND s2.pp = MAX.max_pp
+            AND s2.map_md5 = MAX.map_md5
         WHERE
             s2.pp > 0
     ),
@@ -57,7 +59,7 @@ def query(
     )
     UPDATE
         scores s
-    INNER JOIN maps m ON s.map_md5 = m.md5
+    LEFT JOIN maps m ON s.map_md5 = m.md5
     SET
         s.status = CASE
             WHEN s.id IN (
