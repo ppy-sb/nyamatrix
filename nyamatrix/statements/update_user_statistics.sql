@@ -9,8 +9,7 @@ WITH max_pp_per_map AS (
         INNER JOIN maps m ON m.md5 = s.map_md5
     WHERE
         m.status IN (2, 3)
-        AND s.status IN (1, 2)
-        AND s.mode IN :modes
+        AND s.grade != "F"
     GROUP BY
         s.userid,
         s.map_md5,
@@ -38,7 +37,6 @@ ordered_pp AS (
         AND s2.pp = mp.maxPP
     WHERE
         mp.maxPP > 0
-        AND s2.mode IN :modes
 ),
 filtered_scores AS (
     SELECT
@@ -111,3 +109,5 @@ SET
         ),
         0
     );
+WHERE
+    s.mode IN :modes
