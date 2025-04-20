@@ -108,5 +108,6 @@ SET
                 AND c.mode = s.mode
         ),
         0
-    );
+    )
 WHERE
+    s.mode IN :modes

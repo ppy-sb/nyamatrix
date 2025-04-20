@@ -9,7 +9,6 @@ WITH ordered_pp AS (
     WHERE
         s.status = 2
         AND s.pp > 0
-        AND s.mode IN :modes
     ORDER BY s.pp DESC,
         s.acc DESC,
         s.id DESC
@@ -76,4 +75,6 @@ SET
                 AND c.mode = s.mode
         ),
         0
-    );
+    )
+WHERE
+    s.mode IN :modes
