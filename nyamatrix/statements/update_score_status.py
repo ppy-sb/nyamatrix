@@ -10,8 +10,10 @@ def query(
     user_ids: Optional[list[int]] = None,
     time_after: Optional[int] = None,
     time_before: Optional[int] = None,
+    update_failed_scores: Optional[bool] = False,
 ):
-    _q = """
+    _q = (
+        """
     WITH MAX AS (
         SELECT
             userid,
@@ -62,38 +64,45 @@ def query(
     LEFT JOIN maps m ON s.map_md5 = m.md5
     SET
         s.status = CASE
+    """
+        + ("WHEN s.grade = 'F' THEN 0" if update_failed_scores else "")
+        + """
             WHEN s.id IN (
                 select
                     id
                 from
                     MAX_PPS
             ) THEN 2
-            WHEN s.grade = 'F' THEN 0
             WHEN s.status = 2 THEN 1
             ELSE s.status
         END
     WHERE
-    """ + "\n".join(
-        v
-        for v in [
-            "s.status IN :score_statuses" if score_statuses else "s.status > 0",
-            "AND s.mode IN :score_modes" if score_modes else "",
-            "AND s.userid IN :user_ids" if user_ids else "",
-            "AND m.status IN :map_statuses" if map_statuses else "",
-            "AND m.mode IN :map_modes" if map_modes else "",
-            (
-                "AND s.time BETWEEN :time_after AND :time_before"
-                if time_after is not None and time_before is not None
-                else (
-                    "AND s.time >= :time_after"
-                    if time_after is not None
+    """
+        + "\n".join(
+            v
+            for v in [
+                "s.grade != 'F'" if not update_failed_scores else "1 = 1",
+                "AND s.status IN :score_statuses" if score_statuses else "s.status > 0",
+                "AND s.mode IN :score_modes" if score_modes else "",
+                "AND s.userid IN :user_ids" if user_ids else "",
+                "AND m.status IN :map_statuses" if map_statuses else "",
+                "AND m.mode IN :map_modes" if map_modes else "",
+                (
+                    "AND s.time BETWEEN :time_after AND :time_before"
+                    if time_after is not None and time_before is not None
                     else (
-                        "AND s.time <= :time_before" if time_before is not None else ""
+                        "AND s.time >= :time_after"
+                        if time_after is not None
+                        else (
+                            "AND s.time <= :time_before"
+                            if time_before is not None
+                            else ""
+                        )
                     )
-                )
-            ),
-        ]
-        if v is not None and v != ""
+                ),
+            ]
+            if v is not None and v != ""
+        )
     )
     return _q, {
         "score_statuses": score_statuses,
@@ -115,6 +124,7 @@ if __name__ == "__main__":
         user_ids=[123456789],
         time_after=0,
         time_before=1000000000,
+        update_failed_scores=False,
     )
 
     print(q, p)
