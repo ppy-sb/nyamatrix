@@ -59,7 +59,7 @@ def score_statuses(
         typer.Option(
             "--game-modes",
             "-gm",
-            help="Game modes to recalculate (0: osu, 1: taiko, 2: catch, 3: mania, 4-6: for relax, 8: for autopilot)",
+            help="Map modes. (" + ", ".join(f"{mode.name}: {mode.value}" for mode in bancho_py.GameMode) + ")",
         ),
     ] = None,
     score_modes: Annotated[
@@ -67,7 +67,7 @@ def score_statuses(
         typer.Option(
             "--score-modes",
             "-sm",
-            help="Score modes",
+            help="Score modes. (" + ", ".join(f"{mode.name}: {mode.value}" for mode in bancho_py.BanchoPyMode) + ")",
         ),
     ] = None,
     score_status: Annotated[
