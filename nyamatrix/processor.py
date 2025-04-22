@@ -12,6 +12,8 @@ from concurrent.futures import ThreadPoolExecutor
 from nyamatrix import statements
 from nyamatrix.statements import SQL
 
+from nyamatrix import bancho_py
+
 from nyamatrix.qb.group_scores import query as qb_group_scores
 from nyamatrix.qb.update_score_status import query as qb_update_score_status
 from nyamatrix.qb.update_user_statistics_use_status import query as qb_update_user_statistics
@@ -112,10 +114,10 @@ def process_scores(engine: Engine, gamemodes: list[int], map_path: str) -> None:
 def qb_process_status(
     engine: Engine,
     *,
-    score_modes: Optional[list[int]] = None,
-    map_modes: Optional[list[int]] = None,
-    score_statuses: Optional[list[int]] = None,
-    map_statuses: Optional[list[int]] = None,
+    score_modes: Optional[list[bancho_py.BanchoPyMode]] = None,
+    map_modes: Optional[list[bancho_py.GameMode]] = None,
+    score_statuses: Optional[list[bancho_py.ScoreStatus]] = None,
+    map_statuses: Optional[list[bancho_py.MapStatus]] = None,
     user_ids: Optional[list[int]] = None,
     time_after: Optional[int] = None,
     time_before: Optional[int] = None,
@@ -124,10 +126,10 @@ def qb_process_status(
     logging.info("Processing full table scores status (waiting for mysql).")
     with engine.connect() as conn:
         q, b = qb_update_score_status(
-            score_modes=score_modes,
-            map_modes=map_modes,
-            score_statuses=score_statuses,
-            map_statuses=map_statuses,
+            score_modes=[int(mode.value) for mode in score_modes] if score_modes else None,
+            map_modes=[int(mode.value) for mode in map_modes] if map_modes else None,
+            score_statuses=[int(status.value) for status in score_statuses] if score_statuses else None,
+            map_statuses=[int(status.value) for status in map_statuses] if map_statuses else None,
             user_ids=user_ids,
             time_after=time_after,
             time_before=time_before,
@@ -149,7 +151,7 @@ def process_score_status(engine: Engine, gamemodes: list[int]) -> None:
 def qb_process_user_statistics(
     engine: Engine,
     *,
-    score_modes: Optional[list[int]] = None,
+    score_modes: Optional[list[bancho_py.BanchoPyMode]] = None,
     calc_pp: Optional[bool] = None,
     slow_statistics: Optional[bool] = None,
     very_slow_statistics: Optional[bool] = None,
@@ -158,7 +160,7 @@ def qb_process_user_statistics(
     logging.info("Processing full table user statistics (waiting for mysql).")
     with engine.connect() as conn:
         q, b = qb_update_user_statistics(
-            modes=score_modes,
+            modes=[int(mode.value) for mode in score_modes] if score_modes else None,
             calc_pp=calc_pp,
             slow_statistics=slow_statistics,
             very_slow_statistics=very_slow_statistics,
