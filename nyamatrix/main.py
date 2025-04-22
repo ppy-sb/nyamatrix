@@ -1,3 +1,4 @@
+from typing_extensions import Annotated
 import coloredlogs
 import typer
 import logging
@@ -5,6 +6,7 @@ from sqlalchemy import create_engine
 from redis import Redis
 
 from nyamatrix import processor, statements
+import bancho_py
 
 app = typer.Typer()
 
@@ -42,6 +44,57 @@ def recalc(
         logging.info("Recalculation completed successfully")
     else:
         logging.error("Recalculation failed: Unable to connect to the database")
+
+
+@app.command()
+def score_statuses(
+    mysql_uri: Annotated[
+        str, typer.Option("--mysql-uri", "-m", help="Database URI to connect to")
+    ] = "mysql://localhost:3306",
+    redis_uri: Annotated[
+        str, typer.Option("--redis-uri", "-r", help="Redis URI to connect to")
+    ] = "redis://localhost:6379",
+    map_modes: Annotated[
+        list[bancho_py.GameMode] | None,
+        typer.Option(
+            "--game-modes",
+            "-gm",
+            help="Game modes to recalculate (0: osu, 1: taiko, 2: catch, 3: mania, 4-6: for relax, 8: for autopilot)",
+        ),
+    ] = None,
+    score_modes: Annotated[
+        list[bancho_py.BanchoPyMode] | None,
+        typer.Option(
+            "--score-modes",
+            "-sm",
+            help="Score modes",
+        ),
+    ] = None,
+    score_status: Annotated[
+        list[bancho_py.ScoreStatus] | None,
+        typer.Option(
+            "--score-status",
+            "-ss",
+            help="Score status ("
+            + ", ".join(f"{status.name}: {status.value}" for status in bancho_py.ScoreStatus)
+            + ")",
+        ),
+    ] = None,
+    map_status: Annotated[
+        list[bancho_py.MapStatus] | None,
+        typer.Option(
+            "--map-status",
+            "-ms",
+            help="Map status (" + ", ".join(f"{status.name}: {status.value}" for status in bancho_py.MapStatus) + ")",
+        ),
+    ] = None,
+):
+    print(f"mysql_uri: {mysql_uri}")
+    print(f"redis_uri: {redis_uri}")
+    print(f"map_modes: {map_modes}")
+    print(f"score_modes: {score_modes}")
+    print(f"score_status: {score_status}")
+    print(f"map_status: {map_status}")
 
 
 def main():
