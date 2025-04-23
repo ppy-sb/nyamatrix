@@ -23,12 +23,8 @@ STATEMENT_COUNT_SCORES = "SELECT COUNT(*) FROM scores WHERE status > 0 AND mode 
 STATEMENT_UPDATE_SCORES = "UPDATE scores SET pp = :pp WHERE id = :id"
 STATEMENT_UPDATE_SCORE_STATUS = SQL("update_score_status")
 STATEMENT_UPDATE_USER_STATISTICS = SQL("update_user_statistics")
-STATEMENT_COUNT_USER_STATISTICS = (
-    "SELECT COUNT(*) FROM stats s INNER JOIN users u ON s.id = u.id WHERE s.mode IN :modes"
-)
-STATEMENT_FETCH_USER_STATISTICS = (
-    "SELECT s.id, s.mode, s.pp, u.country, u.priv FROM stats s INNER JOIN users u ON s.id = u.id WHERE s.mode IN :modes"
-)
+STATEMENT_COUNT_USER_STATISTICS = "SELECT COUNT(*) FROM stats s INNER JOIN users u ON s.id = u.id WHERE s.mode IN :modes"
+STATEMENT_FETCH_USER_STATISTICS = "SELECT s.id, s.mode, s.pp, u.country, u.priv FROM stats s INNER JOIN users u ON s.id = u.id WHERE s.mode IN :modes"
 
 map_path = Path.cwd() / "maps"
 gm_dict: dict[int, GameMode] = {
@@ -90,9 +86,7 @@ def _process_group(
                     results_list[i] = (score[0], pp_value)
 
             with engine.connect() as conn:
-                conn.execute(
-                    text(STATEMENT_UPDATE_SCORES), [{"pp": result[1], "id": result[0]} for result in results_list]
-                )
+                conn.execute(text(STATEMENT_UPDATE_SCORES), [{"pp": result[1], "id": result[0]} for result in results_list])
                 conn.commit()
         tqdm.update(scores_num)
     except Exception as e:
@@ -262,9 +256,7 @@ def process_user_statistics(engine: Engine, redis: Redis, gamemodes: list[int]) 
     logging.info("Finished processing user statistics.")
 
     logging.info("Writing leaderboard to redis.")
-    progress_bar = tqdm(
-        total=statements.fetch_count(engine, STATEMENT_COUNT_USER_STATISTICS, {"modes": tuple(gamemodes)})
-    )
+    progress_bar = tqdm(total=statements.fetch_count(engine, STATEMENT_COUNT_USER_STATISTICS, {"modes": tuple(gamemodes)}))
     with engine.connect() as conn:
         connection = conn.execution_options(stream_results=True, max_row_buffer=1000)
         with connection.execute(text(STATEMENT_FETCH_USER_STATISTICS), {"modes": tuple(gamemodes)}) as result:

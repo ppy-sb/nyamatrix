@@ -90,7 +90,7 @@ def recalc(
 
 @app.command()
 def score_statuses(
-    mysql_uri: Annotated[str, typer.Option("--mysql-uri", "-m", help="Database URI to connect to")] = "mysql://localhost:3306",
+    mysql_uri: Annotated[str, typer.Option("--mysql-uri", "-m", help="Database URI to connect to")] = "mysql+pymysql://localhost:3306",
     redis_uri: Annotated[str, typer.Option("--redis-uri", "-r", help="Redis URI to connect to")] = "redis://localhost:6379",
     map_modes: Annotated[
         list[bancho_py.GameMode] | None,
@@ -153,7 +153,7 @@ def score_statuses(
 
 @app.command()
 def user_statistics(
-    mysql_uri: Annotated[str, typer.Option("--mysql-uri", "-m", help="Database URI to connect to")] = "mysql://localhost:3306",
+    mysql_uri: Annotated[str, typer.Option("--mysql-uri", "-m", help="Database URI to connect to")] = "pymysql+mysql://localhost:3306",
     redis_uri: Annotated[str, typer.Option("--redis-uri", "-r", help="Redis URI to connect to")] = "redis://localhost:6379",
     score_modes: Annotated[
         list[bancho_py.BanchoPyMode] | None,

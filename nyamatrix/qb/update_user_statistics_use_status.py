@@ -122,21 +122,9 @@ def query(
     join_tables = (
         v
         for v in [
-            (
-                "LEFT JOIN calculated c ON s.id = c.userId AND s.mode = c.mode"
-                if calc_pp
-                else None
-            ),
-            (
-                "LEFT JOIN concrete_stats cs ON s.id = cs.userId AND s.mode = cs.mode"
-                if slow_statistics
-                else None
-            ),
-            (
-                "LEFT JOIN ranked_stats rs ON s.id = rs.userId AND s.mode = rs.mode"
-                if very_slow_statistics
-                else None
-            ),
+            ("LEFT JOIN calculated c ON s.id = c.userId AND s.mode = c.mode" if calc_pp else None),
+            ("LEFT JOIN concrete_stats cs ON s.id = cs.userId AND s.mode = cs.mode" if slow_statistics else None),
+            ("LEFT JOIN ranked_stats rs ON s.id = rs.userId AND s.mode = rs.mode" if very_slow_statistics else None),
         ]
         if v is not None
     )
@@ -144,11 +132,7 @@ def query(
     updates = (
         v
         for v in [
-            (
-                ("s.pp = COALESCE(c.pp,0)," "s.acc = COALESCE(c.acc,0)")
-                if calc_pp
-                else None
-            ),
+            (("s.pp = COALESCE(c.pp,0)," "s.acc = COALESCE(c.acc,0)") if calc_pp else None),
             (
                 (
                     "s.tscore = COALESCE(cs.total_score,0),"
@@ -161,26 +145,19 @@ def query(
                 if slow_statistics
                 else None
             ),
-            (
-                "s.rscore = COALESCE(rs.ranked_score,0)"
-                if very_slow_statistics
-                else None
-            ),
+            ("s.rscore = COALESCE(rs.ranked_score,0)" if very_slow_statistics else None),
         ]
         if v is not None
     )
 
-    _q = (
-        f"""
+    _q = f"""
     WITH {", ".join(ctes)}
     UPDATE stats s
     {" ".join(join_tables)}
     SET
         {", ".join(updates)}
-"""
-        + "WHERE s.mode IN :modes"
-        if modes
-        else ""
+""" + (
+        "WHERE s.mode IN :modes" if modes else ""
     )
 
     return _q, {"modes": modes}

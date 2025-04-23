@@ -86,7 +86,7 @@ def query(
             v
             for v in [
                 "s.grade != 'F'" if not update_failed_scores else "1 = 1",
-                "AND s.status IN :score_statuses" if score_statuses else "s.status > 0",
+                "AND s.status IN :score_statuses" if score_statuses else "AND s.status > 0",
                 "AND s.mode IN :score_modes" if score_modes else "",
                 "AND s.userid IN :user_ids" if user_ids else "",
                 "AND m.status IN :map_statuses" if map_statuses else "",
@@ -95,13 +95,7 @@ def query(
                     "AND s.time BETWEEN :time_after AND :time_before"
                     if time_after is not None and time_before is not None
                     else (
-                        "AND s.time >= :time_after"
-                        if time_after is not None
-                        else (
-                            "AND s.time <= :time_before"
-                            if time_before is not None
-                            else ""
-                        )
+                        "AND s.time >= :time_after" if time_after is not None else ("AND s.time <= :time_before" if time_before is not None else "")
                     )
                 ),
             ]
