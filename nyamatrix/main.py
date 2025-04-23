@@ -5,20 +5,15 @@ import logging
 from sqlalchemy import create_engine
 from redis import Redis
 
-from nyamatrix import processor, statements
-import bancho_py
+from nyamatrix import processor, statements, bancho_py
 
 app = typer.Typer()
 
 
 @app.command()
 def recalc(
-    mysql_uri: Annotated[
-        str, typer.Option("--mysql-uri", "-m", help="Database URI to connect to")
-    ] = "mysql://localhost:3306",
-    redis_uri: Annotated[
-        str, typer.Option("--redis-uri", "-r", help="Redis URI to connect to")
-    ] = "redis://localhost:6379",
+    mysql_uri: Annotated[str, typer.Option("--mysql-uri", "-m", help="Database URI to connect to")] = "mysql://localhost:3306",
+    redis_uri: Annotated[str, typer.Option("--redis-uri", "-r", help="Redis URI to connect to")] = "redis://localhost:6379",
     beatmap_path: str = typer.Option(..., "--beatmap-path", "-b", help="Path to the beatmaps directory"),
     map_modes: Annotated[
         list[bancho_py.GameMode] | None,
@@ -41,9 +36,7 @@ def recalc(
         typer.Option(
             "--score-status",
             "-ss",
-            help="Score status ("
-            + ", ".join(f"{status.name}: {status.value}" for status in bancho_py.ScoreStatus)
-            + ")",
+            help="Score status (" + ", ".join(f"{status.name}: {status.value}" for status in bancho_py.ScoreStatus) + ")",
         ),
     ] = None,
     map_status: Annotated[
@@ -97,12 +90,8 @@ def recalc(
 
 @app.command()
 def score_statuses(
-    mysql_uri: Annotated[
-        str, typer.Option("--mysql-uri", "-m", help="Database URI to connect to")
-    ] = "mysql://localhost:3306",
-    redis_uri: Annotated[
-        str, typer.Option("--redis-uri", "-r", help="Redis URI to connect to")
-    ] = "redis://localhost:6379",
+    mysql_uri: Annotated[str, typer.Option("--mysql-uri", "-m", help="Database URI to connect to")] = "mysql://localhost:3306",
+    redis_uri: Annotated[str, typer.Option("--redis-uri", "-r", help="Redis URI to connect to")] = "redis://localhost:6379",
     map_modes: Annotated[
         list[bancho_py.GameMode] | None,
         typer.Option(
@@ -124,9 +113,7 @@ def score_statuses(
         typer.Option(
             "--score-status",
             "-ss",
-            help="Score status ("
-            + ", ".join(f"{status.name}: {status.value}" for status in bancho_py.ScoreStatus)
-            + ")",
+            help="Score status (" + ", ".join(f"{status.name}: {status.value}" for status in bancho_py.ScoreStatus) + ")",
         ),
     ] = None,
     map_status: Annotated[
@@ -166,12 +153,8 @@ def score_statuses(
 
 @app.command()
 def user_statistics(
-    mysql_uri: Annotated[
-        str, typer.Option("--mysql-uri", "-m", help="Database URI to connect to")
-    ] = "mysql://localhost:3306",
-    redis_uri: Annotated[
-        str, typer.Option("--redis-uri", "-r", help="Redis URI to connect to")
-    ] = "redis://localhost:6379",
+    mysql_uri: Annotated[str, typer.Option("--mysql-uri", "-m", help="Database URI to connect to")] = "mysql://localhost:3306",
+    redis_uri: Annotated[str, typer.Option("--redis-uri", "-r", help="Redis URI to connect to")] = "redis://localhost:6379",
     score_modes: Annotated[
         list[bancho_py.BanchoPyMode] | None,
         typer.Option(
@@ -182,9 +165,7 @@ def user_statistics(
     ] = None,
     calc_pp: Annotated[bool, typer.Option("--pp", "-p", help="recalc pp and pp acc")] = True,
     slow_statistics: Annotated[bool, typer.Option("--slow", "-s", help="recalc slow statistics")] = True,
-    very_slow_statistics: Annotated[
-        bool, typer.Option("--very-slow", "-ss", help="recalc very slow statistics")
-    ] = True,
+    very_slow_statistics: Annotated[bool, typer.Option("--very-slow", "-ss", help="recalc very slow statistics")] = True,
     log_level: str = typer.Option("INFO", "--log-level", "-l", help="Logging level"),
 ):
     # Set up logging
