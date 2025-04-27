@@ -184,24 +184,6 @@ files = [
 psutil = "*"
 
 [[package]]
-name = "mysqlclient"
-version = "2.2.7"
-description = "Python interface to MySQL"
-optional = false
-python-versions = ">=3.8"
-groups = ["main"]
-files = [
-    {file = "mysqlclient-2.2.7-cp310-cp310-win_amd64.whl", hash = "sha256:2e3c11f7625029d7276ca506f8960a7fd3c5a0a0122c9e7404e6a8fe961b3d22"},
-    {file = "mysqlclient-2.2.7-cp311-cp311-win_amd64.whl", hash = "sha256:a22d99d26baf4af68ebef430e3131bb5a9b722b79a9fcfac6d9bbf8a88800687"},
-    {file = "mysqlclient-2.2.7-cp312-cp312-win_amd64.whl", hash = "sha256:4b4c0200890837fc64014cc938ef2273252ab544c1b12a6c1d674c23943f3f2e"},
-    {file = "mysqlclient-2.2.7-cp313-cp313-win_amd64.whl", hash = "sha256:201a6faa301011dd07bca6b651fe5aaa546d7c9a5426835a06c3172e1056a3c5"},
-    {file = "mysqlclient-2.2.7-cp39-cp39-win_amd64.whl", hash = "sha256:199dab53a224357dd0cb4d78ca0e54018f9cee9bf9ec68d72db50e0a23569076"},
-    {file = "mysqlclient-2.2.7-pp310-pypy310_pp73-win_amd64.whl", hash = "sha256:92af368ed9c9144737af569c86d3b6c74a012a6f6b792eb868384787b52bb585"},
-    {file = "mysqlclient-2.2.7-pp39-pypy39_pp73-win_amd64.whl", hash = "sha256:977e35244fe6ef44124e9a1c2d1554728a7b76695598e4b92b37dc2130503069"},
-    {file = "mysqlclient-2.2.7.tar.gz", hash = "sha256:24ae22b59416d5fcce7e99c9d37548350b4565baac82f95e149cac6ce4163845"},
-]
-
-[[package]]
 name = "psutil"
 version = "7.0.0"
 description = "Cross-platform lib for process and system monitoring in Python.  NOTE: the syntax of this script MUST be kept compatible with Python 2.7."
@@ -239,6 +221,22 @@ files = [
 
 [package.extras]
 windows-terminal = ["colorama (>=0.4.6)"]
+
+[[package]]
+name = "pymysql"
+version = "1.1.1"
+description = "Pure Python MySQL Driver"
+optional = false
+python-versions = ">=3.7"
+groups = ["main"]
+files = [
+    {file = "PyMySQL-1.1.1-py3-none-any.whl", hash = "sha256:4de15da4c61dc132f4fb9ab763063e693d521a80fd0e87943b9a453dd4c19d6c"},
+    {file = "pymysql-1.1.1.tar.gz", hash = "sha256:e127611aaf2b417403c60bf4dc570124aeb4a57f5f37b8e95ae399a42f904cd0"},
+]
+
+[package.extras]
+ed25519 = ["PyNaCl (>=1.4.0)"]
+rsa = ["cryptography"]
 
 [[package]]
 name = "pyreadline3"
@@ -470,4 +468,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12"
-content-hash = "74c9e2fd2a48f9f4e255e147497ace993d168750408ed009170ee431e986c875"
+content-hash = "118173a8a4c529589ab98622b4f4739549dd6eff1d903033c2a46532d124d73d"

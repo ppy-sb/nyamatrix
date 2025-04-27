@@ -1,20 +1,7 @@
 import logging
 import sqlalchemy.exc
-from pathlib import Path
 from urllib.parse import urlparse
 from sqlalchemy import Engine, text, create_engine
-
-
-def _read_file(filename: str):
-    path = Path(__file__).parent / "statements" / f"{filename}"
-    if not path.exists():
-        raise FileNotFoundError(f"Statement file not found: {filename}.")
-    with open(path, "r", encoding="utf-8") as file:
-        return file.read()
-
-
-def SQL(filename: str):
-    return _read_file(f"{filename}.sql")
 
 
 def test_database_connection(db_uri: str) -> bool:
