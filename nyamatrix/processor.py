@@ -9,20 +9,13 @@ from sqlalchemy import Engine, text
 from rosu_pp_py import Beatmap, GameMode, Performance, PerformanceAttributes
 from concurrent.futures import ThreadPoolExecutor
 
-from nyamatrix import statements
-from nyamatrix.statements import SQL
-
 from nyamatrix import enums
-
+from nyamatrix import statements
 from nyamatrix.qb.group_scores import query as qb_group_scores, count as qb_count_scores
 from nyamatrix.qb.update_score_status import query as qb_update_score_status
 from nyamatrix.qb.update_user_statistics_use_status import query as qb_update_user_statistics
 
-STATEMENT_GROUP_SCORES = SQL("group_scores")
-STATEMENT_COUNT_SCORES = "SELECT COUNT(*) FROM scores WHERE status > 0 AND mode IN :modes"
 STATEMENT_UPDATE_SCORES = "UPDATE scores SET pp = :pp WHERE id = :id"
-STATEMENT_UPDATE_SCORE_STATUS = SQL("update_score_status")
-STATEMENT_UPDATE_USER_STATISTICS = SQL("update_user_statistics")
 STATEMENT_COUNT_USER_STATISTICS = "SELECT COUNT(*) FROM stats s INNER JOIN users u ON s.id = u.id WHERE s.mode IN :modes"
 STATEMENT_FETCH_USER_STATISTICS = "SELECT s.id, s.mode, s.pp, u.country, u.priv FROM stats s INNER JOIN users u ON s.id = u.id WHERE s.mode IN :modes"
 
@@ -145,28 +138,6 @@ def qb_process_scores(
     logging.info("Finished processing scores.")
 
 
-def process_scores(engine: Engine, gamemodes: list[int], map_path: str) -> None:
-    logging.info("Processing scores.")
-    progress_bar = tqdm(total=statements.fetch_count(engine, STATEMENT_COUNT_SCORES, {"modes": tuple(gamemodes)}))
-    pool = ThreadPoolExecutor(max_workers=4)
-    with engine.connect() as conn:
-        connection = conn.execution_options(stream_results=True, max_row_buffer=10000)
-        with connection.execute(text(STATEMENT_GROUP_SCORES), {"modes": tuple(gamemodes)}) as result:
-            for grouped_scores in result:
-                pool.submit(
-                    _process_group,
-                    grouped_scores[0],
-                    grouped_scores[1],
-                    json.loads(grouped_scores[2]),
-                    map_path,
-                    progress_bar,
-                    engine,
-                )
-    pool.shutdown(wait=True)
-    progress_bar.close()
-    logging.info("Finished processing scores.")
-
-
 def qb_process_score_status(
     engine: Engine,
     *,
@@ -192,14 +163,6 @@ def qb_process_score_status(
             update_failed_scores=update_failed_scores,
         )
         conn.execute(text(q), b)
-        conn.commit()
-    logging.info("Finished processing status.")
-
-
-def process_score_status(engine: Engine, gamemodes: list[int]) -> None:
-    logging.info("Processing full table scores status (waiting for mysql).")
-    with engine.connect() as conn:
-        conn.execute(text(STATEMENT_UPDATE_SCORE_STATUS), {"modes": tuple(gamemodes)})
         conn.commit()
     logging.info("Finished processing status.")
 
@@ -240,26 +203,6 @@ def qb_process_user_statistics(
             text(STATEMENT_FETCH_USER_STATISTICS),
             {"modes": [int(mode.value) for mode in score_modes] if score_modes else [0, 1, 2, 3, 4, 5, 6, 8]},
         ) as result:
-            for row in result:
-                if row[4] & 1 << 0:  # unrestricted
-                    redis.zadd(f"bancho:leaderboard:{row[1]}", {str(row[0]): row[2]})
-                    redis.zadd(f"bancho:leaderboard:{row[1]}:{row[3]}", {str(row[0]): row[2]})
-                progress_bar.update(1)
-    logging.info("Finished processing user statistics.")
-
-
-def process_user_statistics(engine: Engine, redis: Redis, gamemodes: list[int]) -> None:
-    logging.info("Processing full table user statistics (waiting for mysql).")
-    with engine.connect() as conn:
-        conn.execute(text(STATEMENT_UPDATE_USER_STATISTICS), {"modes": tuple(gamemodes)})
-        conn.commit()
-    logging.info("Finished processing user statistics.")
-
-    logging.info("Writing leaderboard to redis.")
-    progress_bar = tqdm(total=statements.fetch_count(engine, STATEMENT_COUNT_USER_STATISTICS, {"modes": tuple(gamemodes)}))
-    with engine.connect() as conn:
-        connection = conn.execution_options(stream_results=True, max_row_buffer=1000)
-        with connection.execute(text(STATEMENT_FETCH_USER_STATISTICS), {"modes": tuple(gamemodes)}) as result:
             for row in result:
                 if row[4] & 1 << 0:  # unrestricted
                     redis.zadd(f"bancho:leaderboard:{row[1]}", {str(row[0]): row[2]})
