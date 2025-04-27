@@ -66,10 +66,10 @@ CONCRETE_STATS_CTES = """
             s.mode,
             SUM(s.score) AS total_score,
             SUM(s.time_elapsed) AS play_time,
-            COUNT(s.grade = "XH") AS xh_count,
-            COUNT(s.grade = "X") AS x_count,
-            COUNT(s.grade = "S") AS s_count,
-            COUNT(s.grade = "A") AS a_count
+            SUM(s.grade = "XH") AS xh_count,
+            SUM(s.grade = "X") AS x_count,
+            SUM(s.grade = "S") AS s_count,
+            SUM(s.grade = "A") AS a_count
         FROM
             scores s
         GROUP BY
@@ -243,10 +243,10 @@ WITH
             s.mode,
             SUM(s.score) AS total_score,
             SUM(s.time_elapsed) AS play_time,
-            COUNT(s.grade = "XH") AS xh_count,
-            COUNT(s.grade = "X") AS x_count,
-            COUNT(s.grade = "S") AS s_count,
-            COUNT(s.grade = "A") AS a_count
+            SUM(s.grade = "XH") AS xh_count,
+            SUM(s.grade = "X") AS x_count,
+            SUM(s.grade = "S") AS s_count,
+            SUM(s.grade = "A") AS a_count
         FROM
             scores s
         GROUP BY
