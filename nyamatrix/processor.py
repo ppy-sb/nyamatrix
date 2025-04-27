@@ -48,6 +48,7 @@ def _process_score(
         return attrs
     except Exception as e:
         logging.error(f"Error calculating performance attributes: {e}")
+    return None
 
 
 def _process_group(
@@ -144,7 +145,6 @@ def qb_process_score_status(
     score_modes: Optional[list[enums.BanchoPyMode]] = None,
     map_modes: Optional[list[enums.GameMode]] = None,
     score_statuses: Optional[list[enums.ScoreStatus]] = None,
-    map_statuses: Optional[list[enums.MapStatus]] = None,
     user_ids: Optional[list[int]] = None,
     time_after: Optional[int] = None,
     time_before: Optional[int] = None,
@@ -156,7 +156,6 @@ def qb_process_score_status(
             score_modes=[int(mode.value) for mode in score_modes] if score_modes else None,
             map_modes=[int(mode.value) for mode in map_modes] if map_modes else None,
             score_statuses=[int(status.value) for status in score_statuses] if score_statuses else None,
-            map_statuses=[int(status.value) for status in map_statuses] if map_statuses else None,
             user_ids=user_ids,
             time_after=time_after,
             time_before=time_before,

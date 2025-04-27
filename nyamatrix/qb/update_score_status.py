@@ -6,7 +6,6 @@ def query(
     score_modes: Optional[list[int]] = None,
     map_modes: Optional[list[int]] = None,
     score_statuses: Optional[list[int]] = None,
-    map_statuses: Optional[list[int]] = None,
     user_ids: Optional[list[int]] = None,
     time_after: Optional[int] = None,
     time_before: Optional[int] = None,
@@ -64,7 +63,7 @@ def query(
     UPDATE
         scores s
     """
-        + ("LEFT JOIN maps m ON s.map_md5 = m.md5" if map_statuses or map_modes else "")
+        + ("LEFT JOIN maps m ON s.map_md5 = m.md5" if map_modes else "")
         + """
     SET
         s.status = CASE
@@ -89,7 +88,6 @@ def query(
                 "AND s.status IN :score_statuses" if score_statuses else "AND s.status > 0",
                 "AND s.mode IN :score_modes" if score_modes else "",
                 "AND s.userid IN :user_ids" if user_ids else "",
-                "AND m.status IN :map_statuses" if map_statuses else "",
                 "AND m.mode IN :map_modes" if map_modes else "",
                 (
                     "AND s.time BETWEEN :time_after AND :time_before"
@@ -106,7 +104,6 @@ def query(
         "score_statuses": score_statuses,
         "score_modes": score_modes,
         "user_ids": user_ids,
-        "map_statuses": map_statuses,
         "map_modes": map_modes,
         "time_after": time_after,
         "time_before": time_before,

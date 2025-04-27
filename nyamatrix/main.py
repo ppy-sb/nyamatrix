@@ -76,7 +76,6 @@ def recalc(
             map_modes=map_modes,
             score_modes=score_modes,
             score_statuses=score_status,
-            map_statuses=map_status,
         )
         processor.qb_process_user_statistics(
             engine,
@@ -125,14 +124,6 @@ def reform(
             help="Score status (" + ", ".join(f"{status.name}: {status.value}" for status in enums.ScoreStatus) + ")",
         ),
     ] = None,
-    map_status: Annotated[
-        list[enums.MapStatus] | None,
-        typer.Option(
-            "--map-status",
-            "-ms",
-            help="Map status (" + ", ".join(f"{status.name}: {status.value}" for status in enums.MapStatus) + ")",
-        ),
-    ] = None,
     log_level: str = typer.Option("INFO", "--log-level", "-l", help="Logging level"),
 ):
     # Set up logging
@@ -154,7 +145,6 @@ def reform(
                 map_modes=map_modes,
                 score_modes=score_modes,
                 score_statuses=score_status,
-                map_statuses=map_status,
                 update_failed_scores=slow_level >= enums.ReformSlowLevel.Slowest,
             )
         if enums.ReformTarget.UserStats in table_names:

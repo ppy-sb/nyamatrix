@@ -3,14 +3,17 @@ from typing import Optional, List
 CALC_PP_CTES = """
     ordered_pp AS (
         SELECT
+            s.id scoreId,
             s.userid,
             s.mode,
             s.pp,
             s.acc
         FROM
             scores s
+        INNER JOIN maps m ON s.map_md5 = m.md5
         WHERE
             s.status = 2
+            AND m.status IN (2, 3)
             AND s.pp > 0
         ORDER BY
             s.pp DESC,
@@ -19,6 +22,7 @@ CALC_PP_CTES = """
     ),
     bests AS (
         SELECT
+            scoreId,
             userid,
             mode,
             pp,
