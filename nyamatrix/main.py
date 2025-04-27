@@ -92,7 +92,7 @@ def recalc(
 def reform(
     mysql_uri: Annotated[str, typer.Option("--mysql-uri", "-m", help="Database URI to connect to")] = "mysql+pymysql://localhost:3306",
     redis_uri: Annotated[str, typer.Option("--redis-uri", "-r", help="Redis URI to connect to")] = "redis://localhost:6379",
-    table_name: Annotated[list[enums.ReformTarget], typer.Option("--table-name", "-t", help="Target table to reform")] = [
+    table_names: Annotated[list[enums.ReformTarget], typer.Option("--table-names", "-t", help="Target table to reform")] = [
         enums.ReformTarget.UserStats,
         enums.ReformTarget.ScoreStatus,
     ],
@@ -151,7 +151,7 @@ def reform(
     if statements.test_database_connection(mysql_uri):
         engine = create_engine(mysql_uri, isolation_level="AUTOCOMMIT")
         redis_engine = Redis.from_url(redis_uri, decode_responses=True)
-        if enums.ReformTarget.ScoreStatus in table_name:
+        if enums.ReformTarget.ScoreStatus in table_names:
             processor.qb_process_score_status(
                 engine,
                 map_modes=map_modes,
@@ -160,7 +160,7 @@ def reform(
                 map_statuses=map_status,
                 update_failed_scores=slow_level >= enums.ReformSlowLevel.Slowest,
             )
-        if enums.ReformTarget.UserStats in table_name:
+        if enums.ReformTarget.UserStats in table_names:
             processor.qb_process_user_statistics(
                 engine,
                 redis_engine,
