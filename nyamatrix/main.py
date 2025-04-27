@@ -90,12 +90,9 @@ def recalc(
 
 @app.command(help="Full recalculate of scores stats and user statistics")
 def reform(
+    table_names: Annotated[list[enums.ReformTarget], typer.Option("--table-names", "-t", help="Target table to reform")],
     mysql_uri: Annotated[str, typer.Option("--mysql-uri", "-m", help="Database URI to connect to")] = "mysql+pymysql://localhost:3306",
     redis_uri: Annotated[str, typer.Option("--redis-uri", "-r", help="Redis URI to connect to")] = "redis://localhost:6379",
-    table_names: Annotated[list[enums.ReformTarget], typer.Option("--table-names", "-t", help="Target table to reform")] = [
-        enums.ReformTarget.UserStats,
-        enums.ReformTarget.ScoreStatus,
-    ],
     slow_level: Annotated[
         int,
         typer.Option(
@@ -167,7 +164,7 @@ def reform(
                 score_modes=score_modes,
                 calc_pp=slow_level >= enums.ReformSlowLevel.Normal,
                 slow_statistics=slow_level >= enums.ReformSlowLevel.Slow,
-                very_slow_statistics=slow_level >= enums.ReformSlowLevel.Slowest,
+                very_slow_statistics=slow_level >= enums.ReformSlowLevel.Slower,
             )
         logging.info("Recalculation completed successfully")
     else:
