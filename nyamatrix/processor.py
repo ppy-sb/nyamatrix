@@ -12,7 +12,7 @@ from concurrent.futures import ThreadPoolExecutor
 from nyamatrix import statements
 from nyamatrix.statements import SQL
 
-from nyamatrix import bancho_py
+from nyamatrix import enums
 
 from nyamatrix.qb.group_scores import query as qb_group_scores, count as qb_count_scores
 from nyamatrix.qb.update_score_status import query as qb_update_score_status
@@ -97,10 +97,10 @@ def qb_process_scores(
     engine: Engine,
     map_path: str,
     *,
-    score_modes: Optional[list[bancho_py.BanchoPyMode]] = None,
-    map_modes: Optional[list[bancho_py.GameMode]] = None,
-    score_statuses: Optional[list[bancho_py.ScoreStatus]] = None,
-    map_statuses: Optional[list[bancho_py.MapStatus]] = None,
+    score_modes: Optional[list[enums.BanchoPyMode]] = None,
+    map_modes: Optional[list[enums.GameMode]] = None,
+    score_statuses: Optional[list[enums.ScoreStatus]] = None,
+    map_statuses: Optional[list[enums.MapStatus]] = None,
     user_ids: Optional[list[int]] = None,
     time_after: Optional[int] = None,
     time_before: Optional[int] = None,
@@ -170,10 +170,10 @@ def process_scores(engine: Engine, gamemodes: list[int], map_path: str) -> None:
 def qb_process_score_status(
     engine: Engine,
     *,
-    score_modes: Optional[list[bancho_py.BanchoPyMode]] = None,
-    map_modes: Optional[list[bancho_py.GameMode]] = None,
-    score_statuses: Optional[list[bancho_py.ScoreStatus]] = None,
-    map_statuses: Optional[list[bancho_py.MapStatus]] = None,
+    score_modes: Optional[list[enums.BanchoPyMode]] = None,
+    map_modes: Optional[list[enums.GameMode]] = None,
+    score_statuses: Optional[list[enums.ScoreStatus]] = None,
+    map_statuses: Optional[list[enums.MapStatus]] = None,
     user_ids: Optional[list[int]] = None,
     time_after: Optional[int] = None,
     time_before: Optional[int] = None,
@@ -208,7 +208,7 @@ def qb_process_user_statistics(
     engine: Engine,
     redis: Redis,
     *,
-    score_modes: Optional[list[bancho_py.BanchoPyMode]] = None,
+    score_modes: Optional[list[enums.BanchoPyMode]] = None,
     calc_pp: Optional[bool] = None,
     slow_statistics: Optional[bool] = None,
     very_slow_statistics: Optional[bool] = None,

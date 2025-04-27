@@ -1,4 +1,21 @@
-from enum import Enum, auto
+from enum import Enum, IntEnum
+
+# Nyamatrix enums
+
+
+class ReformSlowLevel(IntEnum):
+    Normal = 0
+    Slow = 1
+    Slower = 2
+    Slowest = 3
+
+
+class ReformTarget(Enum):
+    UserStats = "stats"
+    ScoreStatus = "scores"
+
+
+# BanchoPy enums
 
 
 class GameMode(Enum):
