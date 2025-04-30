@@ -65,7 +65,9 @@ CONCRETE_STATS_CTES = """
             s.userid,
             s.mode,
             SUM(s.score) AS total_score,
+            SUM(s.n300 + s.n100 + s.n50 + (IF(s.mode IN (1, 3, 5), s.ngeki + s.nkatu, 0))) AS total_hits,
             SUM(s.time_elapsed) AS play_time,
+            MAX(s.max_combo) AS max_combo,
             SUM(s.grade = "XH") AS xh_count,
             SUM(s.grade = "X") AS x_count,
             SUM(s.grade = "S") AS s_count,
@@ -141,6 +143,8 @@ def query(
                 (
                     "s.tscore = COALESCE(cs.total_score,0),"
                     "s.playtime = COALESCE(cs.play_time,0),"
+                    "s.total_hits = COALESCE(cs.total_hits,0),"
+                    "s.max_combo = COALESCE(cs.max_combo,0),"
                     "s.xh_count = COALESCE(cs.xh_count,0),"
                     "s.x_count = COALESCE(cs.x_count,0),"
                     "s.s_count = COALESCE(cs.s_count,0),"
@@ -176,113 +180,3 @@ if __name__ == "__main__":
             modes=[0, 1, 2],
         )
     )
-
-# Full query:
-"""--sql
-WITH
-    dummy AS (
-        SELECT
-            1
-    ),
-    ordered_pp AS (
-        SELECT
-            s.userid,
-            s.mode,
-            s.pp,
-            s.acc
-        FROM
-            scores s
-        WHERE
-            s.status = 2
-            AND s.pp > 0
-        ORDER BY
-            s.pp DESC,
-            s.acc DESC,
-            s.id DESC
-    ),
-    bests AS (
-        SELECT
-            userid,
-            mode,
-            pp,
-            acc,
-            ROW_NUMBER() OVER (
-                PARTITION BY
-                    userid,
-                    mode
-                ORDER BY
-                    pp DESC
-            ) AS global_rank
-        FROM
-            ordered_pp
-    ),
-    user_calc AS (
-        SELECT
-            userid,
-            mode,
-            COUNT(*) AS count,
-            SUM(POW (0.95, global_rank - 1) * pp) AS weightedPP,
-            (1 - POW (0.9994, COUNT(*))) * 416.6667 AS bnsPP,
-            SUM(POW (0.95, global_rank - 1) * acc) / SUM(POW (0.95, global_rank - 1)) AS acc
-        FROM
-            bests
-        GROUP BY
-            userid,
-            mode
-    ),
-    calculated AS (
-        SELECT
-            *,
-            weightedPP + bnsPP AS pp
-        FROM
-            user_calc
-    ),
-    concrete_stats AS (
-        SELECT
-            s.userid,
-            s.mode,
-            SUM(s.score) AS total_score,
-            SUM(s.time_elapsed) AS play_time,
-            SUM(s.grade = "XH") AS xh_count,
-            SUM(s.grade = "X") AS x_count,
-            SUM(s.grade = "S") AS s_count,
-            SUM(s.grade = "A") AS a_count
-        FROM
-            scores s
-        GROUP BY
-            s.userid,
-            s.mode
-    ),
-    ranked_stats AS (
-        SELECT
-            s.userid,
-            s.mode,
-            SUM(s.score) AS ranked_score
-        FROM
-            scores s
-            LEFT JOIN maps m ON s.map_md5 = m.md5
-        WHERE
-            m.status IN (2, 3)
-            AND s.status = 2
-        GROUP BY
-            s.userid,
-            s.mode
-    )
-UPDATE stats s
-INNER JOIN calculated c ON s.id = c.userId
-AND s.mode = c.mode
-INNER JOIN concrete_stats cs ON s.id = cs.userId
-AND s.mode = cs.mode
-INNER JOIN ranked_stats rs ON s.id = rs.userId
-AND s.mode = rs.mode
-SET
-    s.pp = COALESCE(c.pp, 0),
-    s.acc = COALESCE(c.acc, 0),
-    s.tscore = COALESCE(cs.total_score, 0),
-    s.playtime = COALESCE(cs.play_time, 0),
-    s.xh_count = COALESCE(cs.xh_count, 0),
-    s.x_count = COALESCE(cs.x_count, 0),
-    s.s_count = COALESCE(cs.s_count, 0),
-    s.a_count = COALESCE(cs.a_count, 0),
-    s.rscore = COALESCE(rs.ranked_score, 0)
-"""
