@@ -66,7 +66,7 @@ CONCRETE_STATS_CTES = """
             s.mode,
             SUM(s.score) AS total_score,
             SUM(s.n300 + s.n100 + s.n50 + (IF(s.mode IN (1, 3, 5), s.ngeki + s.nkatu, 0))) AS total_hits,
-            SUM(s.time_elapsed) AS play_time,
+            SUM(s.time_elapsed) / 1000 AS play_time,
             MAX(s.max_combo) AS max_combo,
             SUM(s.grade = "XH") AS xh_count,
             SUM(s.grade = "X") AS x_count,
