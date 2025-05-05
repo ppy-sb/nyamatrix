@@ -64,12 +64,14 @@ CONCRETE_STATS_CTES = """
         SELECT
             s.userid,
             s.mode,
+            count(*) AS count,
             SUM(s.score) AS total_score,
             SUM(s.n300 + s.n100 + s.n50 + (IF(s.mode IN (1, 3, 5), s.ngeki + s.nkatu, 0))) AS total_hits,
             SUM(s.time_elapsed) / 1000 AS play_time,
             MAX(s.max_combo) AS max_combo,
             SUM(s.grade = "XH") AS xh_count,
             SUM(s.grade = "X") AS x_count,
+            SUM(s.grade = "SH") AS sh_count,
             SUM(s.grade = "S") AS s_count,
             SUM(s.grade = "A") AS a_count
         FROM
@@ -142,11 +144,13 @@ def query(
             (
                 (
                     "s.tscore = COALESCE(cs.total_score,0),"
+                    "s.plays = COALESCE(cs.count,0),"
                     "s.playtime = COALESCE(cs.play_time,0),"
-                    "s.total_hits = COALESCE(cs.total_hits,0),"
                     "s.max_combo = COALESCE(cs.max_combo,0),"
+                    "s.total_hits = COALESCE(cs.total_hits,0),"
                     "s.xh_count = COALESCE(cs.xh_count,0),"
                     "s.x_count = COALESCE(cs.x_count,0),"
+                    "s.sh_count = COALESCE(cs.sh_count,0),"
                     "s.s_count = COALESCE(cs.s_count,0),"
                     "s.a_count = COALESCE(cs.a_count,0)"
                 )
