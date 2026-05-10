@@ -1,19 +1,22 @@
 import json
 import logging
 import math
-from typing import Optional
-from tqdm import tqdm
-from pathlib import Path
-from redis import Redis
-from sqlalchemy import Engine, text
-from rosu_pp_py import Beatmap, GameMode, Performance, PerformanceAttributes
 from concurrent.futures import ThreadPoolExecutor
+from pathlib import Path
+from typing import Optional
 
-from nyamatrix import enums
-from nyamatrix import statements
-from nyamatrix.qb.group_scores import query as qb_group_scores, count as qb_count_scores
+from redis import Redis
+from rosu_pp_py import Beatmap, GameMode, Performance, PerformanceAttributes
+from sqlalchemy import Engine, text
+from tqdm import tqdm
+
+from nyamatrix import enums, statements
+from nyamatrix.qb.group_scores import count as qb_count_scores
+from nyamatrix.qb.group_scores import query as qb_group_scores
 from nyamatrix.qb.update_score_status import query as qb_update_score_status
-from nyamatrix.qb.update_user_statistics_use_status import query as qb_update_user_statistics
+from nyamatrix.qb.update_user_statistics_use_status import (
+    query as qb_update_user_statistics,
+)
 
 STATEMENT_UPDATE_SCORES = "UPDATE scores SET pp = :pp WHERE id = :id"
 STATEMENT_COUNT_USER_STATISTICS = "SELECT COUNT(*) FROM stats s INNER JOIN users u ON s.id = u.id WHERE s.mode IN :modes"
@@ -29,9 +32,9 @@ gm_dict: dict[int, GameMode] = {
 
 
 def _process_score(
-    attr_or_map: Beatmap | PerformanceAttributes, array: tuple[int, int, int, int, int, int, int, int]
+    attr_or_map: Beatmap | PerformanceAttributes, array: tuple[int, int, int, int, int, int, int, int, int]
 ) -> PerformanceAttributes | None:
-    mods, combo, n_geki, n300, n_katu, n100, n50, misses = array
+    mods, combo, n_geki, n300, n_katu, n100, n50, misses, score = array
     calculator = Performance(
         mods=mods,
         combo=combo,
@@ -42,6 +45,7 @@ def _process_score(
         n50=n50,
         misses=misses,
         lazer=False,
+        legacy_total_score=score,
     )
     try:
         attrs = calculator.calculate(attr_or_map)
@@ -54,7 +58,7 @@ def _process_score(
 def _process_group(
     map_id: int,
     mode: int,
-    scores: list[tuple[int, int, int, int, int, int, int, int, int]],
+    scores: list[tuple[int, int, int, int, int, int, int, int, int, int]],
     map_path: str,
     tqdm: tqdm,
     engine: Engine,

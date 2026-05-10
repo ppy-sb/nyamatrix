@@ -74,7 +74,8 @@ def query(
                 s.nkatu,
                 s.n100,
                 s.n50,
-                s.nmiss
+                s.nmiss,
+                s.score
             )
         ) ss
     FROM

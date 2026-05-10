@@ -322,7 +322,7 @@ dev = ["pytest (>=8)"]
 type = "git"
 url = "https://github.com/ppy-sb/rosu-pp-py.git"
 reference = "HEAD"
-resolved_reference = "3108311af2398f759ae235273f8f71d3d964c00f"
+resolved_reference = "53487895455ff6326478d58c552b2d1061290465"
 
 [[package]]
 name = "shellingham"
