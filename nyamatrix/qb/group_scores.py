@@ -10,6 +10,7 @@ def count(
     user_ids: Optional[list[int]] = None,
     time_after: Optional[int] = None,
     time_before: Optional[int] = None,
+    required_mods: Optional[int] = None,
 ):
     _q = """
     SELECT
@@ -35,6 +36,7 @@ def count(
                     else ("AND s.time <= :time_before" if time_before is not None else "")
                 )
             ),
+            "AND s.mods & :required_mods = :required_mods" if required_mods else "",
         ]
         if v is not None and v != ""
     )
@@ -46,6 +48,7 @@ def count(
         "user_ids": user_ids,
         "time_after": time_after,
         "time_before": time_before,
+        "required_mods": required_mods,
     }
 
 
@@ -58,6 +61,7 @@ def query(
     user_ids: Optional[list[int]] = None,
     time_after: Optional[int] = None,
     time_before: Optional[int] = None,
+    required_mods: Optional[int] = None,
 ):
     _q = (
         """
@@ -100,6 +104,7 @@ def query(
                         else ("AND s.time <= :time_before" if time_before is not None else "")
                     )
                 ),
+                "AND s.mods & :required_mods = :required_mods" if required_mods else "",
             ]
             if v is not None and v != ""
         )
@@ -116,6 +121,7 @@ def query(
         "user_ids": user_ids,
         "time_after": time_after,
         "time_before": time_before,
+        "required_mods": required_mods,
     }
 
 

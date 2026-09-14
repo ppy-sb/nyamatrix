@@ -1,6 +1,7 @@
+import logging
+
 import coloredlogs
 import typer
-import logging
 from redis import Redis
 from sqlalchemy import create_engine
 from typing_extensions import Annotated
@@ -47,6 +48,14 @@ def recalc(
             help="Map status (" + ", ".join(f"{status.name}: {status.value}" for status in enums.MapStatus) + ")",
         ),
     ] = None,
+    with_mods: Annotated[
+        int | None,
+        typer.Option(
+            "--with-mods",
+            "-wm",
+            help="Only recalculate scores that include ALL of the given mods (bitmask, e.g. 2 = EZ, 72 = EZ+DT). Applies to pp recalculation only.",
+        ),
+    ] = None,
     log_level: str = typer.Option("INFO", "--log-level", "-l", help="Logging level"),
 ):
     # Set up logging
@@ -70,6 +79,7 @@ def recalc(
             score_modes=score_modes,
             score_statuses=score_status,
             map_statuses=map_status,
+            required_mods=with_mods,
         )
         processor.qb_process_score_status(
             engine,

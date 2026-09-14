@@ -102,6 +102,7 @@ def qb_process_scores(
     user_ids: Optional[list[int]] = None,
     time_after: Optional[int] = None,
     time_before: Optional[int] = None,
+    required_mods: Optional[int] = None,
 ) -> None:
     logging.info("Processing scores.")
     count, count_params = qb_count_scores(
@@ -112,6 +113,7 @@ def qb_process_scores(
         user_ids=user_ids,
         time_after=time_after,
         time_before=time_before,
+        required_mods=required_mods,
     )
     progress_bar = tqdm(total=statements.fetch_count(engine, count, count_params))
     pool = ThreadPoolExecutor(max_workers=4)
@@ -125,6 +127,7 @@ def qb_process_scores(
             user_ids=user_ids,
             time_after=time_after,
             time_before=time_before,
+            required_mods=required_mods,
         )
         with connection.execute(text(query), query_params) as result:
             for v in result:
